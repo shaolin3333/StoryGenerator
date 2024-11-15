@@ -1,0 +1,27 @@
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+import numpy as np
+from tensorflow.keras.models import load_model
+
+# Load the tokenizer
+tokenizer = Tokenizer()
+tokenizer_json = open('tokenizer.json', 'r').read()
+tokenizer.set_config(tokenizer_json)
+
+# Load the saved LSTM model
+model = load_model('lstm/lstm_bedtime_story_model.h5')
+
+def generate_story(seed_text, next_words, max_sequence_len):
+    for _ in range(next_words):
+        token_list = tokenizer.texts_to_sequences([seed_text])[0]
+        token_list = pad_sequences([token_list], maxlen=max_sequence_len-1, padding='pre')
+        predicted_probs = model.predict(token_list, verbose=0)
+        predicted_word_index = np.argmax(predicted_probs, axis=1)[0]
+        output_word = tokenizer.index_word.get(predicted_word_index, "")
+        seed_text += " " + output_word
+    return seed_text
+
+# Generate a bedtime story
+seed_text = "Once upon a time in a magical forest"
+story = generate_story(seed_text, next_words=50, max_sequence_len=max_sequence_len)
+print(story)
