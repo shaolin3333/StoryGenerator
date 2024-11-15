@@ -1,0 +1,6 @@
+.conda/
+output/
+logs/
+tools/
+bedtime_story_model/
+data/
