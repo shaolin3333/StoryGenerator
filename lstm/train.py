@@ -1,7 +1,7 @@
 import numpy as np
 import re
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout
+from tensorflow.keras.layers import Embedding, LSTM, Dense, Dropout, Bidirectional
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
@@ -36,6 +36,12 @@ input_sequences = np.array(pad_sequences(input_sequences, maxlen=max_sequence_le
 
 print(f'max_sequence_len: {max_sequence_len}')
 
+# Randomly sample 10% of the data
+np.random.seed(42)  # For reproducibility
+sample_size = int(0.05 * len(input_sequences))
+sample_indices = np.random.choice(len(input_sequences), sample_size, replace=False)
+input_sequences = input_sequences[sample_indices]
+
 # Split into predictors and label
 predictors, label = input_sequences[:,:-1], input_sequences[:,-1]
 # label = to_categorical(label, num_classes=total_words)
@@ -47,6 +53,11 @@ model.add(LSTM(150, return_sequences=True))  # First LSTM layer
 model.add(Dropout(0.2))  # Dropout for regularization
 model.add(LSTM(100))  # Second LSTM layer
 model.add(Dense(total_words, activation='softmax'))  # Output layer
+
+# model.add(Embedding(total_words, 100, input_length=max_sequence_len-1))
+# model.add(Bidirectional(LSTM(150)))
+# model.add(Dense(total_words, activation='softmax'))
+# model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.summary()
