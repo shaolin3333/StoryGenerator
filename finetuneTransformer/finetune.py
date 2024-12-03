@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments, TextDataset, DataCollatorForLanguageModeling
 import pandas as pd
+import os
 
 # 1. Load Pretrained Model and Tokenizer
 model_name = "gpt2"  # Replace with any Hugging Face model like EleutherAI/gpt-neo-125M or bigger
@@ -27,9 +28,11 @@ def split_long_text(text, max_length):
     chunks = [tokenized_text[i:i + max_length] for i in range(0, len(tokenized_text), max_length)]
     return chunks
 
-train_path = "data/train.txt"  
-val_path = "data/val.txt"
-save_path = "./bedtime_story_model"      
+train_path = "./StoryGenerator/data/train.txt"  
+val_path = "./StoryGenerator/data/val.txt"
+save_path = "./StoryGenerator/finetuneTransformer/bedtime_story_model"    
+
+print("Current Path:", os.getcwd())  
 
 # train = pd.read_csv(train_path)
 # train['text'] = train['text'].fillna('').astype(str)
@@ -45,13 +48,13 @@ data_collator = DataCollatorForLanguageModeling(
 
 # Training Arguments
 training_args = TrainingArguments(
-    output_dir="./finetuneTransformer/output/bedtime_story_model",
+    output_dir="./StoryGenerator/finetuneTransformer/output/bedtime_story_model",
     overwrite_output_dir=True,
     num_train_epochs=3,
     per_device_train_batch_size=4,
     save_steps=500,
     save_total_limit=2,
-    logging_dir="./finetuneTransformer/logs",
+    logging_dir="./StoryGenerator/finetuneTransformer/logs",
     logging_steps=100,
     evaluation_strategy="steps",
     eval_steps=500,

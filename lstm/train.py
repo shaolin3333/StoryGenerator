@@ -8,7 +8,7 @@ from tensorflow.keras.utils import to_categorical
 import pickle
 
 # Load dataset
-with open('data/children_stories.txt', 'r', encoding='utf-8') as file:
+with open('./StoryGenerator/data/children_stories.txt_updated', 'r', encoding='utf-8') as file:
     text = file.read().lower()
 
 # Clean the text
@@ -19,7 +19,7 @@ tokenizer = Tokenizer()
 tokenizer.fit_on_texts([text])
 total_words = len(tokenizer.word_index) + 1  # Total unique words
 
-with open('lstm/tokenizer.pickle', 'wb') as handle:
+with open('./StoryGenerator/lstm/tokenizer.pickle', 'wb') as handle:
     pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Create input sequences
@@ -38,7 +38,7 @@ print(f'max_sequence_len: {max_sequence_len}')
 
 # Randomly sample 10% of the data
 np.random.seed(42)  # For reproducibility
-sample_size = int(0.05 * len(input_sequences))
+sample_size = int(0.10 * len(input_sequences))
 sample_indices = np.random.choice(len(input_sequences), sample_size, replace=False)
 input_sequences = input_sequences[sample_indices]
 
@@ -49,7 +49,7 @@ predictors, label = input_sequences[:,:-1], input_sequences[:,-1]
 # Define the model
 model = Sequential()
 model.add(Embedding(total_words, 100, input_length=max_sequence_len-1))  # Embedding layer
-model.add(LSTM(150, return_sequences=True))  # First LSTM layer
+model.add(LSTM(256, return_sequences=True))  # First LSTM layer
 model.add(Dropout(0.2))  # Dropout for regularization
 model.add(LSTM(100))  # Second LSTM layer
 model.add(Dense(total_words, activation='softmax'))  # Output layer
@@ -65,7 +65,7 @@ model.summary()
 
 # Train the model
 history = model.fit(predictors, label, epochs=20, batch_size=64, verbose=1)
-model.save('lstm/lstm_bedtime_story_model.h5')
+model.save('./StoryGeneratorlstm/lstm_bedtime_story_model.h5')
 
 print(history)
 print("Model training complete")
